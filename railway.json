@@ -1,0 +1,14 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd laravel-backend/temp-project && composer install --no-dev --optimize-autoloader"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "startCommand": "cd laravel-backend/temp-project && chmod +x deploy.sh && bash deploy.sh && php artisan serve --host=0.0.0.0 --port=$PORT",
+    "healthcheckPath": "/up",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  }
+}

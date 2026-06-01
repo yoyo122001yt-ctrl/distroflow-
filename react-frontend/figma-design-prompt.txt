@@ -1,0 +1,136 @@
+FIGMA AI DESIGN PROMPT — DISTROFLOW DASHBOARD
+==============================================
+
+Create a full-page dashboard design with premium motion design for a supply chain/distribution management web app called "DistroFlow". The design should feel alive, polished, and enterprise-grade — think Stripe dashboard, Linear app, or Notion-level animation quality.
+
+─── PLATFORM ───
+Web application (responsive, desktop-first with mobile adaptation).
+
+─── DESIGN SYSTEM ───
+
+Colors:
+- Primary brand: Blue (#2563eb / #3b82f6)
+- Background: #f8fafc page bg, #ffffff card bg
+- Text: #1e293b headings, #64748b secondary
+- Success: #22c55e
+- Warning: #f59e0b
+- Danger: #ef4444
+- Borders: #e2e8f0
+
+Typography: Inter or system-ui. Bold 600-700 headings, Regular 400 body.
+Corner radius: 12px cards, 8px buttons, 6px badges
+Shadows: subtle (0 1px 3px rgba(0,0,0,0.06))
+
+─── CORE ANIMATION PHILOSOPHY ───
+
+Every animation must serve a purpose — guide attention, communicate state changes, or provide feedback. No gratuitous motion. All animations use cubic-bezier(0.16, 1, 0.3, 1) — a custom ease-out curve that feels snappy and natural. Duration range: 150ms–500ms depending on distance traveled.
+
+─── COMPONENT 1: SIDEBAR ───
+
+Animated properties:
+- Collapse/expand: Width transitions from 256px → 64px with a 300ms ease-out. Icons slide to center, text fades out with 150ms delay.
+- Menu item hover: Background tint fades in 150ms. A subtle left border (3px brand blue) slides in from left on active item.
+- Icon hover: Gentle scale bump to 1.05 on hover, 100ms.
+- Active indicator: A thin blue bar animates smoothly between menu items when navigating (like Linear's sidebar).
+
+Visual: White bg, right border. Logo at top (blue square + "DistroFlow"). 16 nav items with Lucide icons. Active = blue tint bg + blue text. Collapsed = icons only.
+
+─── COMPONENT 2: HEADER ───
+
+Animated properties:
+- Sticky header: On scroll down, a thin shadow fades in at bottom (0→4px, 200ms).
+- Notification bell: Red dot pulses gently (scale 1→1.15→1, 2s loop, ease-in-out). On click, dropdown scales in from top-right with 200ms spring.
+- User avatar dropdown: Same spring scale-in, 200ms. Menu items stagger in (each item 30ms delay, fade+slide 8px).
+- Mobile hamburger: Icon rotates 90° on toggle, 200ms.
+
+Visual: White bg, border bottom. Bell icon with red dot. User avatar (blue circle, white initials).
+
+─── COMPONENT 3: DASHBOARD PAGE TITLE ───
+
+Animated properties:
+- Page enter: Title and subtitle fade up (0→1, translateY(12px)→0) over 400ms, subtitle delayed 80ms.
+- Page transition: When navigating between routes, the entire content area cross-fades (old content fades out 150ms, new content fades in 250ms).
+
+Visual: "Dashboard" heading + "Overview of your business performance" subtitle.
+
+─── COMPONENT 4: STAT CARDS (4 cards grid) ───
+
+Animated properties:
+- Page enter stagger: Cards enter one by one, each 80ms apart. Each card: fade up + scale(0.95→1) over 400ms.
+- Number count-up: Values animate from 0 to their final number over 800ms using a decelerating ease. Comma-separated formatting.
+- Hover: Card lifts 4px (translateY(-4px)), shadow deepens (0 12px 24px rgba(0,0,0,0.08)), border subtly lightens. 200ms.
+- Icon hover: Icon background tint intensifies, icon itself gets a gentle color shift, 150ms.
+- On value change (polling update): Old value fades out 150ms, new value fades in 150ms, with a subtle yellow flash highlight on the number (background flash rgba(255,200,50,0.15) for 600ms then fades).
+
+Cards:
+1. Store icon (blue-50) — "Total Stores" — count
+2. ShoppingCart icon (green-50) — "Products" — count  
+3. Truck icon (orange-50) — "Orders Today" — count
+4. DollarSign icon (purple-50) — "Revenue MTD" — currency
+
+─── COMPONENT 5: CHARTS (2-column: 2/3 + 1/3) ───
+
+Left — "Sales Trend" (bar chart):
+Animated properties:
+- Chart enter: Bars animate from bottom to full height, each bar 400ms with 50ms stagger delay between bars. Spring-like overshoot at top.
+- Axis labels fade in after bars complete (200ms delay).
+- Hover on bar: Bar fills with brighter color, tooltip fades in with 150ms scale animation.
+- Data update transition: Bars smoothly re-height from old value to new value over 500ms.
+
+Visual: Blue bars (#3b82f6) with rounded top (4px radius). X-axis dates, Y-axis $. Light grid. Empty state: icon + "No sales data available".
+
+Right — "Order Status" (donut chart):
+Animated properties:
+- Donut segments animate in sequentially, each segment rotates into place over 500ms, clockwise, 100ms stagger.
+- Center number fades in after all segments (300ms delay).
+- Hover on segment: Segment expands outward slightly (5px offset), legend item highlights.
+- Legend items stagger fade in from bottom, 30ms delay each.
+
+Visual: Inner radius 60, outer radius 90. Colors: green (#22c55e), blue (#3b82f6), amber (#f59e0b), red (#ef4444). Legend below. Empty state: icon + "No order data available".
+
+─── COMPONENT 6: RECENT ORDERS TABLE ───
+
+Animated properties:
+- Table header: Sticky header with subtle bottom border.
+- Row enter stagger: Rows fade in sequentially from top, each 50ms apart, slide down 8px, 300ms each.
+- Row hover: Background gently tints (#f8fafc) with 150ms. A subtle left border accent (2px brand blue) slides in on hover.
+- Status badge: Badge has a gentle pulse on first appearance (scale 0.9→1, 300ms).
+- New row arriving (polling): New row slides down from top with 300ms, existing rows shift smoothly.
+- Empty state: Truck icon floats gently (translateY 0→-6px, 3s loop, ease-in-out).
+
+Table columns: Order # (bold), Store, Items, Total (currency), Status (badge).
+
+Status badges: "Delivered" = green bg, "Pending" = amber bg, "In Transit" = blue bg.
+
+─── COMPONENT 7: LOADING STATES ───
+
+- Initial page load: Skeleton screens matching card shapes. Cards show a shimmer effect (linear gradient sweep left-to-right over 1.5s, repeating infinite).
+- Skeleton cards: Light gray (#e2e8f0) rounded rectangles that pulse with shimmer animation.
+- Skeleton chart: Gray bar outlines that shimmer.
+- Skeleton table: 5 rows of gray rectangles with shimmer.
+- Content reveal: When data loads, skeleton fades out 200ms, real content fades in 300ms.
+
+─── COMPONENT 8: TOAST NOTIFICATIONS ───
+
+Animated properties:
+- Toast slides up from bottom: translateY(20px)→0, with slight scale (0.95→1), 300ms spring.
+- Auto-dismiss: After 4s, toast slides down with fade, 250ms.
+- Stacked toasts: Second toast pushes first one up by 60px with smooth 200ms transition.
+- Types: Success (green), Error (red), Info (blue). Each with icon.
+
+─── COMPONENT 9: MICRO-INTERACTIONS ───
+
+- Button click: Scale 1→0.97→1 over 150ms. Ripple effect on primary buttons.
+- Status dot: In sidebar or header, active dot pulses with ring (scale 1→1.5, opacity 1→0, 2s loop).
+- Numeric changes (polling updates): Number briefly flashes yellow, then settles.
+- Scroll-triggered: Cards slightly parallax as user scrolls.
+
+─── RESPONSIVE BREAKPOINTS ───
+
+- Desktop (≥1024px): Full sidebar. Charts side by side.
+- Tablet (768-1023px): Sidebar collapsed by default (icons only). Charts stack.
+- Mobile (<768px): Sidebar hidden (overlay). Single column. Cards stack 2×2.
+
+─── MOOD / VIBE ───
+
+Premium, alive, and trustworthy. Every motion should feel like it belongs — organic, responsive, and deliberate. Think Linear's snappy sidebar transitions, Stripe's polished data visualizations, and Notion's gentle hover states. The animation should make the user feel the system is intelligent and responsive, not flashy.

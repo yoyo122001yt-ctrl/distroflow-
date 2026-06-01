@@ -1,0 +1,202 @@
+FIGMA AI DESIGN PROMPT — DISTROFLOW DRIVER TRIP PAGE
+=====================================================
+
+Create a mobile-first, premium driver trip interface for a supply chain distribution app called "DistroFlow". This is a real-time driver companion used during delivery routes. The design should feel like a premium navigation/delivery app — think Uber Driver, Amazon Flex, or DoorDash Dasher quality with world-class motion design.
+
+─── PLATFORM ───
+Mobile web (responsive, max-width 480px, mobile-first). Designed for use WHILE DRIVING — large tap targets, high contrast, readable at a glance.
+
+─── DESIGN SYSTEM ───
+
+Colors:
+- Background: Dark theme (#0f172a page, #1e293b cards)
+- Primary: Blue (#2563eb / #3b82f6) — active states, CTAs
+- Success: Green (#22c55e) — completed stops, active GPS, start trip
+- Danger: Red (#ef4444) — end trip, errors, GPS offline
+- Text: #f1f5f9 primary, #94a3b8 secondary
+- Borders: rgba(255,255,255,0.06) — subtle glass borders
+
+Typography:
+- Font: Inter or system-ui
+- Headings: Bold 700-800 weight, tight letter-spacing
+- Stats: Heavy weight, tabular-nums for alignment
+- Labels: Small, uppercase, wide letter-spacing
+
+Glass-morphism: Cards use rgba backgrounds with backdrop-filter: blur(12px) and subtle borders
+Corner radius: 16px buttons, 14px cards, 999px pills
+
+─── CORE ANIMATION PHILOSOPHY ───
+
+Every animation feels alive but purposeful — guiding the driver's attention to what matters. Use cubic-bezier(0.16, 1, 0.3, 1) for a snappy, premium feel. Duration 200ms-500ms. Springs for enter animations (cubic-bezier(0.34, 1.56, 0.64, 1)).
+
+─── LAYOUT STRUCTURE (scrollable single column, 480px max) ───
+
+─── COMPONENT 1: HEADER ───
+
+Animated properties:
+- Gradient background animates slowly (background-position shifts 8s loop) for a subtle live feel
+- Greeting text uses a gradient text fill (white → light blue) — "Good morning/afternoon/evening" based on time
+- "Sign Out" button: glass-style with border, hover lifts slightly
+
+Visual:
+- Dark blue gradient header (#1e3a5f → #1e40af → #3b82f6)
+- Top line: Greeting (dynamic time-based) | Sign Out link
+- Bottom: "Welcome, {driver name}" subtitle
+- Background glow orbs (radial gradient circles) for depth
+
+─── COMPONENT 2: STATUS BAR ───
+
+Animated properties:
+- Status dot: Active = green with pulse animation (scale 1→1.3, 1.5s loop) + expanding ring pulse (border expands outward and fades)
+- Inactive = gray, Error = red fast pulse
+- Status text changes dynamically with a cross-fade on update
+- Bottom glow line animates left-to-right (gradient sweep 3s loop)
+
+Visual:
+- Glass dark bg with backdrop-blur
+- Left: colored dot + status text ("Tracking active" / "Ready to start" / "GPS error")
+- Full width with bottom border
+
+─── COMPONENT 3: GPS INFO BAR ───
+
+Animated properties:
+- Slides down from top (translateY(-8px)→0, 300ms) when trip starts
+- Values update with a brief highlight flash on change (200ms yellow bg flash)
+- Stagger children: accuracy, signal age, coordinates appear with slight delay
+
+Visual:
+- Darker background row, compact
+- Three inline data points: 📍 Accuracy (meters), 🔄 Age, 📡 Coordinates
+- Monospace/tabular numbers for alignment
+- Hidden by default, slides in when tracking begins
+
+─── COMPONENT 4: STATS DASHBOARD (4 cards) ───
+
+Animated properties:
+- Page enter: Cards stagger in with 50ms delay each. Each card: fade up + scale(0.95→1) over 400ms spring
+- Timer: Updates every second with smooth number change (cross-fade or brief flash)
+- Stops counter: Updates with a subtle scale bounce when value changes
+- Speed: Animated gauge-like feel — number changes with brief glow
+- Distance: Accumulates smoothly
+- Hover: Card lifts 2px, border lightens, shadow deepens
+
+Visual:
+- 4-column grid of glass cards
+- Card 1: "Time" — large clock-style display (e.g. "1h 24m")
+- Card 2: "Stops" — completed/total (e.g. "3/8")
+- Card 3: "Km/h" — current speed with subtle gauge ring when active
+- Card 4: "Distance" — total distance traveled (e.g. "12.4km")
+- Each card: glass gradient bg, rounded 14px, value large + bold, label uppercase tiny
+
+─── COMPONENT 5: PROGRESS BAR ───
+
+Animated properties:
+- Fill width animates with a smooth cubic-bezier curve on every update (600ms transition)
+- Shimmer sweep effect on the fill (gradient slides left-to-right, 2s loop)
+- Counter numbers update with brief scale bounce
+- Appears with slide-down when trip starts
+
+Visual:
+- "Delivery Progress" label | "3 / 8" counter
+- Thin pill track (8px height) with green gradient fill
+- Fill has animated shimmer highlight running across it
+
+─── COMPONENT 6: TRIP ACTION BUTTONS ───
+
+Animated properties:
+- Start button: Green gradient, on hover lifts 2px + shadow intensifies. On click: scale 0.98 then bounce back. Ripple effect on tap (circle expands from touch point).
+- End button: Red gradient, same hover/click behavior. Disabled state: dimmed with no interaction.
+- Button text has a subtle icon + label layout
+- State transitions: Loading shows spinner (rotating circle), disabled dims to 40%
+- Button enter: Fade up on page load, 500ms
+
+Visual:
+- Two full-width buttons side by side
+- Left: START TRIP (green, prominent) — disabled when trip active
+- Right: END TRIP (red) — disabled until trip starts
+- Both: 16px radius, bold 800 weight, letter-spaced, centered icon + text
+- Gradient top edge highlight on each (white sheen)
+
+─── COMPONENT 7: MAP ───
+
+Animated properties:
+- Map fades in with blur dissolve on load (filter: blur(4px)→0, 600ms)
+- Driver marker: Red pulsing dot with ring animation (scale 1→1.5, opacity 1→0, 2s loop)
+- Stop markers: Blue circles for pending, green for completed. Each has a subtle pulse
+- Route polyline: Animated dashed line (dashOffset animates for moving dashes effect)
+- When driver marker moves, map pans smoothly (0.5s animated)
+- Marker popups: scale in from bottom on tap
+
+Visual:
+- 200px height map taking full width
+- Dark-themed map tiles (or standard OpenStreetMap with dark overlay)
+- Driver: Red circle with white border, pulsing ring
+- Stops: Colored circles (#3b82f6 pending, #22c55e completed)
+- Dashed route polyline connecting stops in order
+
+─── COMPONENT 8: ROUTE TIMELINE ───
+
+Animated properties:
+- Staggered entry: Each timeline item fades in sequentially (50ms delay each), sliding in from left (translateX(-12px)→0), 500ms spring
+- Dot states:
+  - Pending: Gray gradient, static
+  - Current: Blue gradient with pulsing glow ring (box-shadow animates 2s loop)
+  - Completed: Green gradient, enters with a scale bounce (0→1.3→1, 400ms)
+- Content cards: On hover, slide right 3px + border lightens + shadow deepens, 300ms
+- Timeline line: Gradient fade from solid to transparent
+
+Visual:
+- Vertical timeline with numbered dots and connecting lines
+- Left: Numbered dot (22px circle) + connecting line
+- Right: Glass card with:
+  - Store name (bold, white)
+  - Address (gray, small) with 📍
+  - Product tags (small pills, dark bg, gray border, inline)
+  - Action buttons row:
+    - 📞 Call (green glass button)
+    - 🗺 Navigate (blue glass button)
+    - ✓ Complete (blue solid button) — changes to green "✓ Done" when completed
+- Completed stops: Dot turns green with checkmark, card slightly dimmed
+
+─── COMPONENT 9: TOAST NOTIFICATIONS ───
+
+Animated properties:
+- Spring slide-up from bottom: translateY(20px)→0, scale(0.9)→1, 350ms spring
+- Auto-dismiss: After 4s, slides down 250ms
+- Types: Success (green), Error (red), Info (blue) — each with gradient bg + subtle border glow
+
+Visual:
+- Fixed bottom center, max 90% width
+- Glass blurred background with matching color gradient
+- 14px radius, bold text, shadow
+
+─── COMPONENT 10: EMPTY STATE ───
+
+Animated properties:
+- Icon floats gently (translateY 0→-8px, 3s loop, ease-in-out)
+- Text fades up on page load, 500ms
+
+Visual:
+- Centered layout
+- Large emoji icon (📭)
+- "No deliveries assigned for today" heading
+- "Check back later or contact your dispatcher" subtext
+
+─── MICRO-INTERACTIONS ───
+
+- Button ripple: White circle expands from touch point and fades
+- Status changes: Brief flash highlight on affected element
+- Loading spinner: Smooth rotation with brand color
+- Complete stop: Dot does a celebration pop (scale bounce), next stop auto-scrolls into view with smooth scroll
+- Progress update: Bar smoothly adjusts width, counter bounces briefly
+- Page transition: Content cross-fades when navigating to/from trip page
+
+─── RESPONSIVE ───
+
+- Mobile (<380px): Stats grid becomes 2×2, tighter padding
+- Default (380-480px): Full design as specified
+- The design is always single-column, max-width 480px, centered
+
+─── MOOD / VIBE ───
+
+Premium, confident, and calming — the driver needs to focus on the road, not fight the UI. Dark theme reduces glare. Large touch targets (minimum 44px). High contrast for readability in sunlight. Every animation should feel intentional and smooth, like a well-engineered native mobile app. Think Uber Driver app combined with Linear's motion polish.

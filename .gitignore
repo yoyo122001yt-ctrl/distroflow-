@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+npm-debug.log
+
+# PHP / Laravel
+laravel-backend/temp-project/.env
+laravel-backend/temp-project/.env.*.local
+laravel-backend/temp-project/storage/framework/cache/data/
+laravel-backend/temp-project/storage/framework/sessions/
+laravel-backend/temp-project/storage/framework/views/
+laravel-backend/temp-project/storage/logs/*.log
+laravel-backend/temp-project/vendor/
+laravel-backend/vendor/
+laravel-backend/temp-project/bootstrap/cache/*.php
+
+# Build output
+react-frontend/dist/
+driver-pwa/dist/
+
+# Railway
+.railway/
