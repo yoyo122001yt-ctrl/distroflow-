@@ -60,7 +60,7 @@ class DriverSettlementService
 
             $settlement = DriverSettlement::updateOrCreate(
                 [
-                    'delivery_id' => $deliveryId,
+                    'delivery_id' => $delivery->id,
                     'driver_id' => $delivery->driver_id,
                 ],
                 [

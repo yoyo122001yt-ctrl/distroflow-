@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, Warehouse, Store, Truck, ShoppingCart,
   ClipboardList, Truck as TruckIcon, Map, Users, ClipboardCheck,
   FileText, Settings, ChevronLeft, ChevronRight, Menu,
-  Receipt, BarChart3, Navigation,
+  Receipt, BarChart3,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -26,7 +26,6 @@ const menuItems = [
   { path: '/invoices', icon: Receipt, key: 'sidebar.invoices', roles: ['admin', 'manager', 'sales'] },
   { path: '/reports', icon: BarChart3, key: 'sidebar.reports', roles: ['admin', 'manager'] },
   { path: '/settings', icon: Settings, key: 'sidebar.settings', roles: ['admin'] },
-  { path: 'http://localhost:8000/warehouse/tracking', icon: Navigation, key: 'sidebar.tracking', roles: ['admin', 'manager'], external: true },
 ]
 
 export default function Sidebar({ collapsed, onToggle }) {

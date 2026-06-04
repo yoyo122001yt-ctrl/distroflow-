@@ -242,6 +242,8 @@ class DeliveryController extends Controller
                 $totalCollected = 0;
                 $totalReturns = 0;
 
+                $firstDeliveryStop = $delivery->stops()->first();
+
                 foreach ($request->items as $item) {
                     $orderItem = OrderItem::findOrFail($item['order_item_id']);
 
@@ -272,7 +274,8 @@ class DeliveryController extends Controller
                             'status' => 'returned',
                         ]);
 
-                        $totalReturns += $return->quantity * ($deliveryItem->unit_price);
+                        $batch = \App\Models\Batch::find($item['batch_id']);
+                        $totalReturns += $return->quantity * ($batch?->cost_price ?? $deliveryItem->unit_price);
                     }
 
                     $orderItem->update([
@@ -294,6 +297,8 @@ class DeliveryController extends Controller
                     foreach ($request->payments as $payment) {
                         DeliveryPayment::create([
                             'delivery_id' => $delivery->id,
+                            'delivery_stop_id' => $firstDeliveryStop?->id,
+                            'sales_order_id' => $request->items[0] ? OrderItem::find($request->items[0]['order_item_id'])?->sales_order_id : null,
                             'amount' => $payment['amount'],
                             'payment_method' => $payment['payment_method'],
                             'reference_number' => $payment['reference_number'] ?? null,

@@ -41,7 +41,10 @@ class ActivityLogController extends Controller
         $query = ActivityLog::latest();
 
         if ($request->filled('user')) {
-            $query->where('user_name', 'like', "%{$request->user}%");
+            $query->where(function ($q) use ($request) {
+                $q->where('user_name', 'like', "%{$request->user}%")
+                  ->orWhere('user_id', $request->user);
+            });
         }
         if ($request->filled('action')) {
             $query->where('action', 'like', "%{$request->action}%");

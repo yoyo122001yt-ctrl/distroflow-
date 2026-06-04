@@ -140,24 +140,33 @@ class StoreApiController extends Controller
             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
+        $warehouse = $store->warehouse ?? \App\Models\Warehouse::first();
+
         $order = SalesOrder::create([
             'retail_store_id' => $store->id,
-            'user_id' => $user->id,
+            'warehouse_id' => $warehouse?->id,
+            'created_by' => $user->id,
             'order_number' => 'ORD-' . strtoupper(uniqid()),
             'status' => 'pending',
             'order_date' => now(),
-            'requested_delivery_date' => $request->delivery_date,
+            'subtotal' => $cart['total'],
+            'tax' => 0,
+            'total' => $cart['total'],
+            'balance_due' => $cart['total'],
             'notes' => $request->notes,
-            'total_amount' => $cart['total'],
         ]);
 
         foreach ($cart['items'] as $item) {
             $order->items()->create([
                 'product_id' => $item['product_id'],
-                'product_name' => $item['name'],
-                'quantity' => $item['quantity'],
+                'quantity_ordered' => $item['quantity'],
+                'quantity_picked' => 0,
+                'quantity_loaded' => 0,
+                'quantity_delivered' => 0,
+                'quantity_returned' => 0,
                 'unit_price' => $item['unit_price'],
-                'subtotal' => $item['subtotal'],
+                'total_price' => $item['subtotal'],
+                'status' => 'pending',
             ]);
         }
 
@@ -193,7 +202,9 @@ class StoreApiController extends Controller
     public function trackDelivery($id)
     {
         $user = auth()->user();
-        $delivery = Delivery::where('retail_store_id', $user->retailStore?->id)
+        $delivery = Delivery::whereHas('stops', function ($q) use ($user) {
+                $q->where('retail_store_id', $user->retailStore?->id);
+            })
             ->with(['driver.driverProfile', 'driver.driverLocations' => function ($q) {
                 $q->latest()->take(50);
             }, 'stops'])

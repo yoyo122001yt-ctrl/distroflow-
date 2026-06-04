@@ -39,7 +39,7 @@ class SendScheduledReports extends Command
         foreach ($managers as $manager) {
             try {
                 Mail::raw(
-                    "{$type|ucfirst} Report for " . $dateRange[0]->format('Y-m-d') . " to " . $dateRange[1]->format('Y-m-d') . "\n\n"
+                    ucfirst($type) . " Report for " . $dateRange[0]->format('Y-m-d') . " to " . $dateRange[1]->format('Y-m-d') . "\n\n"
                     . "Sales: {$salesReport['total_sales']} orders, total {$salesReport['total_revenue']} EGP\n"
                     . "Deliveries: {$driverReport['total_deliveries']} completed\n"
                     . "On-Time Rate: {$driverReport['on_time_rate']}%\n\n"

@@ -56,6 +56,18 @@ class SalesOrder extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function deliveries()
+    {
+        return $this->hasManyThrough(
+            Delivery::class,
+            DeliveryItem::class,
+            'sales_order_id',
+            'id',
+            'id',
+            'delivery_id'
+        );
+    }
+
     public function invoices()
     {
         return $this->hasMany(Invoice::class);

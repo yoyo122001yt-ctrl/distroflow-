@@ -62,7 +62,7 @@ class WarehouseInventoryController extends Controller
                         'warehouse_id' => $purchaseOrder->warehouse_id,
                         'batch_number' => $item['batch_number'] ?? ('BATCH-' . strtoupper(uniqid())),
                         'manufacturing_date' => $item['manufacturing_date'] ?? null,
-                        'expiry_date' => $item['expiry_date'] ?? null,
+                        'expiry_date' => $item['expiry_date'] ?? now()->addDays(60)->format('Y-m-d'),
                         'quantity' => $item['quantity'],
                         'available_quantity' => $item['quantity'],
                         'cost_price' => $item['cost_price'] ?? $poItem->unit_cost,
@@ -78,6 +78,8 @@ class WarehouseInventoryController extends Controller
 
                     $createdBatches[] = $batch;
                 }
+
+                $purchaseOrder->load('items');
 
                 $allReceived = $purchaseOrder->items->every(function ($item) {
                     return $item->quantity_received >= $item->quantity_ordered;

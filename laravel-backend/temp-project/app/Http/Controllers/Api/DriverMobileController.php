@@ -36,7 +36,7 @@ class DriverMobileController extends Controller
 
             $assignment = RouteAssignment::with(['route.stops.retailStore', 'route.warehouse', 'truck'])
                 ->where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->whereIn('status', ['scheduled', 'active'])
                 ->first();
 
@@ -48,7 +48,7 @@ class DriverMobileController extends Controller
             }
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->first();
 
             return response()->json([
@@ -74,7 +74,7 @@ class DriverMobileController extends Controller
 
             $assignment = RouteAssignment::with(['route.stops.retailStore'])
                 ->where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->first();
 
             if (!$assignment) {
@@ -85,7 +85,7 @@ class DriverMobileController extends Controller
             }
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->first();
 
             $stops = $assignment->route->stops->map(function ($stop) use ($delivery) {
@@ -126,11 +126,11 @@ class DriverMobileController extends Controller
             $routeStop = RouteStop::with('retailStore')->findOrFail($stopId);
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->first();
 
             $orders = SalesOrder::with(['items.product'])
@@ -173,24 +173,26 @@ class DriverMobileController extends Controller
             $routeStop = RouteStop::findOrFail($stopId);
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
-            $delivery = Delivery::firstOrCreate(
-                [
-                    'route_assignment_id' => $assignment->id,
-                    'delivery_date' => now()->toDateString(),
-                ],
-                [
+            $delivery = Delivery::where('route_assignment_id', $assignment->id)
+                ->whereDate('delivery_date', now())
+                ->first();
+
+            if (!$delivery) {
+                $delivery = Delivery::create([
                     'delivery_number' => 'DEL-' . strtoupper(uniqid()),
+                    'route_assignment_id' => $assignment->id,
                     'driver_id' => $driver->id,
                     'truck_id' => $assignment->truck_id,
+                    'delivery_date' => now()->toDateString(),
                     'status' => 'in_transit',
                     'total_sales' => 0,
                     'total_collected' => 0,
                     'total_returns' => 0,
-                ]
-            );
+                ]);
+            }
 
             if ($delivery->status === 'pending') {
                 $delivery->update(['status' => 'in_transit', 'started_at' => now()]);
@@ -243,11 +245,11 @@ class DriverMobileController extends Controller
             $routeStop = RouteStop::findOrFail($stopId);
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->firstOrFail();
 
             $deliveryStop = DeliveryStop::where('delivery_id', $delivery->id)
@@ -285,11 +287,21 @@ class DriverMobileController extends Controller
                         ]);
                     }
 
+                    $newDelivered = $orderItem->quantity_delivered + $item['quantity_delivered'];
+                    $newReturned = $orderItem->quantity_returned + ($item['quantity_returned'] ?? 0);
                     $orderItem->update([
-                        'quantity_delivered' => DB::raw('quantity_delivered + ' . $item['quantity_delivered']),
-                        'quantity_returned' => DB::raw('quantity_returned + ' . ($item['quantity_returned'] ?? 0)),
+                        'quantity_delivered' => $newDelivered,
+                        'quantity_returned' => $newReturned,
                         'status' => ($item['quantity_returned'] ?? 0) > 0 ? 'partial' : 'delivered',
                     ]);
+
+                    $salesOrder = SalesOrder::find($orderItem->sales_order_id);
+                    if ($salesOrder) {
+                        $allDelivered = $salesOrder->items()->whereNotIn('status', ['delivered'])->count() === 0;
+                        if ($allDelivered) {
+                            $salesOrder->update(['status' => 'delivered']);
+                        }
+                    }
                 }
 
                 $deliveryStop->update(['status' => 'delivered']);
@@ -326,11 +338,11 @@ class DriverMobileController extends Controller
             $driver = $request->user();
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->firstOrFail();
 
             $deliveryStop = DeliveryStop::where('delivery_id', $delivery->id)
@@ -338,9 +350,12 @@ class DriverMobileController extends Controller
                 ->firstOrFail();
 
             $payment = DB::transaction(function () use ($request, $delivery, $deliveryStop) {
+                $salesOrderId = $delivery->items()->value('sales_order_id');
+
                 $payment = DeliveryPayment::create([
                     'delivery_stop_id' => $deliveryStop->id,
                     'delivery_id' => $delivery->id,
+                    'sales_order_id' => $salesOrderId,
                     'amount' => $request->amount,
                     'payment_method' => $request->payment_method,
                     'reference_number' => $request->reference_number,
@@ -384,11 +399,11 @@ class DriverMobileController extends Controller
             $driver = $request->user();
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->firstOrFail();
 
             $deliveryStop = DeliveryStop::where('delivery_id', $delivery->id)
@@ -429,11 +444,11 @@ class DriverMobileController extends Controller
             $driver = $request->user();
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->firstOrFail();
 
             $deliveryStop = DeliveryStop::where('delivery_id', $delivery->id)
@@ -479,7 +494,7 @@ class DriverMobileController extends Controller
 
             $assignment = RouteAssignment::with('truck')
                 ->where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $truck = $assignment->truck;
@@ -516,7 +531,7 @@ class DriverMobileController extends Controller
             $driver = $request->user();
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $truckId = $assignment->truck_id;
@@ -559,25 +574,27 @@ class DriverMobileController extends Controller
 
             $assignment = RouteAssignment::with('route')
                 ->where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
-            $delivery = Delivery::firstOrCreate(
-                [
-                    'route_assignment_id' => $assignment->id,
-                    'delivery_date' => now()->toDateString(),
-                ],
-                [
+            $delivery = Delivery::where('route_assignment_id', $assignment->id)
+                ->whereDate('delivery_date', now())
+                ->first();
+
+            if (!$delivery) {
+                $delivery = Delivery::create([
                     'delivery_number' => 'DEL-' . strtoupper(uniqid()),
+                    'route_assignment_id' => $assignment->id,
                     'driver_id' => $driver->id,
                     'truck_id' => $assignment->truck_id,
+                    'delivery_date' => now()->toDateString(),
                     'status' => 'in_transit',
                     'started_at' => now(),
                     'total_sales' => 0,
                     'total_collected' => 0,
                     'total_returns' => 0,
-                ]
-            );
+                ]);
+            }
 
             if ($delivery->status === 'pending') {
                 $delivery->update(['status' => 'in_transit', 'started_at' => now()]);
@@ -615,14 +632,14 @@ class DriverMobileController extends Controller
             $driver = $request->user();
 
             $assignment = RouteAssignment::where('driver_id', $driver->id)
-                ->where('assignment_date', now()->toDateString())
+                ->whereDate('assignment_date', now())
                 ->firstOrFail();
 
             $delivery = Delivery::where('route_assignment_id', $assignment->id)
-                ->where('delivery_date', now()->toDateString())
+                ->whereDate('delivery_date', now())
                 ->firstOrFail();
 
-            $result = DB::transaction(function () use ($request, $delivery, $driver) {
+            $result = DB::transaction(function () use ($request, $delivery, $driver, $assignment) {
                 $delivery->update([
                     'status' => 'completed',
                     'completed_at' => now(),
@@ -631,9 +648,16 @@ class DriverMobileController extends Controller
 
                 $settlement = $this->settlementService->calculateSettlement($delivery->id);
 
+                $delivery->update([
+                    'total_sales' => $settlement->total_sales,
+                    'total_returns' => $settlement->total_returns,
+                    'total_collected' => $delivery->payments()->sum('amount'),
+                ]);
+
                 $settlement->update([
                     'actual_cash' => $request->actual_cash,
                     'cash_variance' => $settlement->expected_cash - $request->actual_cash,
+                    'status' => abs($settlement->expected_cash - $request->actual_cash) > 10.00 ? 'flagged' : 'pending',
                     'notes' => $request->notes,
                 ]);
 
