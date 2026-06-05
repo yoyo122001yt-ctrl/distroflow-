@@ -12,12 +12,13 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Product::with('category');
+            $query = Product::with('category')->where('is_active', true);
 
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('name_ar', 'like', "%{$search}%")
                       ->orWhere('sku', 'like', "%{$search}%")
                       ->orWhere('barcode', 'like', "%{$search}%");
                 });
@@ -51,9 +52,11 @@ class ProductController extends Controller
             $request->validate([
                 'category_id' => 'nullable|exists:product_categories,id',
                 'name' => 'required|string|max:255',
+                'name_ar' => 'nullable|string|max:255',
                 'sku' => 'required|string|max:100|unique:products,sku',
                 'barcode' => 'nullable|string|max:100',
                 'description' => 'nullable|string',
+                'description_ar' => 'nullable|string',
                 'unit' => 'required|string|max:50',
                 'cost_price' => 'required|numeric|min:0',
                 'selling_price' => 'required|numeric|min:0',
@@ -110,9 +113,11 @@ class ProductController extends Controller
             $request->validate([
                 'category_id' => 'nullable|exists:product_categories,id',
                 'name' => 'sometimes|string|max:255',
+                'name_ar' => 'nullable|string|max:255',
                 'sku' => 'sometimes|string|max:100|unique:products,sku,' . $id,
                 'barcode' => 'nullable|string|max:100',
                 'description' => 'nullable|string',
+                'description_ar' => 'nullable|string',
                 'unit' => 'sometimes|string|max:50',
                 'cost_price' => 'sometimes|numeric|min:0',
                 'selling_price' => 'sometimes|numeric|min:0',
@@ -148,13 +153,6 @@ class ProductController extends Controller
     {
         try {
             $product = Product::findOrFail($id);
-
-            if ($product->batches()->where('available_quantity', '>', 0)->exists()) {
-                return response()->json([
-                    'message' => 'Cannot delete product with existing stock',
-                ], 409);
-            }
-
             $product->update(['is_active' => false]);
 
             return response()->json([

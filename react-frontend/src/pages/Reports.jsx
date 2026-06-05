@@ -22,7 +22,7 @@ export default function Reports() {
       const { data } = await api.get('/reports/' + filters.report_type, { params: filters })
       setResult(data)
     } catch (err) {
-      toast.error(err.message || t('reports:failedToGenerate'))
+      toast.error(err.message || t('reports.failedToGenerate'))
     } finally {
       setLoading(false)
     }
@@ -31,9 +31,9 @@ export default function Reports() {
   const handleExport = async (filters) => {
     try {
       await exportReport(filters.report_type, filters)
-      toast.success(t('reports:exported'))
+      toast.success(t('reports.exported'))
     } catch (err) {
-      toast.error(err.message || t('reports:exportFailed'))
+      toast.error(err.message || t('reports.exportFailed'))
     }
   }
 
@@ -118,8 +118,8 @@ export default function Reports() {
       <div className="flex items-center gap-2 mb-6">
         <BarChart3 size={24} className="text-brand-600" />
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('reports:title')}</h1>
-          <p className="text-gray-500 mt-1">{t('reports:subtitle')}</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('reports.title')}</h1>
+          <p className="text-gray-500 mt-1">{t('reports.subtitle')}</p>
         </div>
       </div>
 
@@ -154,7 +154,7 @@ export default function Reports() {
           {!result.chart_data && !result.columns && !result.summary && (
             <div className="card text-center py-8 text-gray-400">
               <BarChart3 size={40} className="mx-auto mb-2 opacity-50" />
-              <p>{t('reports:noData')}</p>
+              <p>{t('reports.noData')}</p>
             </div>
           )}
         </div>
@@ -163,8 +163,8 @@ export default function Reports() {
       {!result && !loading && (
         <div className="card text-center py-12 text-gray-400">
           <BarChart3 size={48} className="mx-auto mb-3 opacity-50" />
-          <p className="text-lg font-medium">{t('reports:selectFilters')}</p>
-          <p className="text-sm mt-1">{t('reports:chooseReportType')}</p>
+          <p className="text-lg font-medium">{t('reports.selectFilters')}</p>
+          <p className="text-sm mt-1">{t('reports.chooseFilters')}</p>
         </div>
       )}
     </div>

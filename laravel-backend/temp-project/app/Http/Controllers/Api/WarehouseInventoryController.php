@@ -134,6 +134,7 @@ class WarehouseInventoryController extends Controller
                 $search = $request->search;
                 $query->whereHas('product', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('name_ar', 'like', "%{$search}%")
                       ->orWhere('sku', 'like', "%{$search}%");
                 });
             }

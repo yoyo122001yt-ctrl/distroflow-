@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RetailStore extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'code', 'business_name', 'trade_name', 'store_type', 'contact_person',
         'phone', 'email', 'address', 'city', 'state', 'zip',

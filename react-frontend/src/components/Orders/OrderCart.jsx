@@ -13,18 +13,18 @@ export default function OrderCart({ items, onUpdateQuantity, onRemoveItem, onCle
      p.sku?.toLowerCase().includes(search.toLowerCase()))
   )
 
-  const total = items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0)
+  const total = items.reduce((sum, item) => sum + (item.unit_price || 0) * item.quantity, 0)
 
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
           <ShoppingCart size={18} />
-          {t('orderCart:title', { count: items.length })}
+          {t('orderCart.title', { count: items.length })}
         </h3>
         {items.length > 0 && (
           <button onClick={onClear} className="text-sm text-danger-500 hover:text-danger-700">
-            {t('orderCart:clearAll')}
+            {t('orderCart.clearAll')}
           </button>
         )}
       </div>
@@ -32,7 +32,7 @@ export default function OrderCart({ items, onUpdateQuantity, onRemoveItem, onCle
       <div className="mb-4">
         <input
           type="text"
-          placeholder={t('orderCart:searchPlaceholder')}
+          placeholder={t('orderCart.search')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="input-field"
@@ -49,7 +49,7 @@ export default function OrderCart({ items, onUpdateQuantity, onRemoveItem, onCle
                 }}
               >
                 <span>{product.name}</span>
-                <span className="text-gray-500">{formatCurrency(product.price)}</span>
+                <span className="text-gray-500">{formatCurrency(product.selling_price)}</span>
               </button>
             ))}
           </div>
@@ -59,7 +59,7 @@ export default function OrderCart({ items, onUpdateQuantity, onRemoveItem, onCle
       {items.length === 0 ? (
         <div className="text-center py-8 text-gray-400">
           <ShoppingCart size={40} className="mx-auto mb-2 opacity-50" />
-          <p className="text-sm">{t('orderCart:emptyCart')}</p>
+          <p className="text-sm">{t('orderCart.empty')}</p>
         </div>
       ) : (
         <>
@@ -68,7 +68,7 @@ export default function OrderCart({ items, onUpdateQuantity, onRemoveItem, onCle
               <div key={item.product_id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                  <p className="text-xs text-gray-500">{formatCurrency(item.price)} {t('orderCart:each')}</p>
+                  <p className="text-xs text-gray-500">{formatCurrency(item.unit_price)} {t('orderCart.each')}</p>
                 </div>
                 <div className="flex items-center gap-2 ml-2">
                   <button
@@ -95,7 +95,7 @@ export default function OrderCart({ items, onUpdateQuantity, onRemoveItem, onCle
             ))}
           </div>
           <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
-            <span className="font-semibold text-gray-900">{t('orderCart:total')}</span>
+            <span className="font-semibold text-gray-900">{t('orderCart.total')}</span>
             <span className="font-bold text-lg text-brand-600">{formatCurrency(total)}</span>
           </div>
         </>

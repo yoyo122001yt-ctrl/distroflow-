@@ -24,11 +24,13 @@ export default function StoreCart() {
 
   async function updateQuantity(productId, quantity) {
     try {
-      const res = await api.post('/store/cart/update', { items: cart.items.map(item =>
-        item.product_id === productId ? { ...item, quantity: Math.max(0, quantity) } : item
-      )});
-      if (quantity === 0) {
+      if (quantity <= 0) {
         await api.delete(`/store/cart/item/${productId}`);
+      } else {
+        await api.post('/store/cart/update', {
+          product_id: productId,
+          quantity: quantity,
+        });
       }
       await loadCart();
     } catch (err) {

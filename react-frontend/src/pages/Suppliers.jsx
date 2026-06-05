@@ -7,7 +7,7 @@ import DataTable from '../components/Common/DataTable'
 import Modal from '../components/Common/Modal'
 import { formatPhone } from '../utils/formatters'
 
-const emptySupplier = { name: '', contact_person: '', email: '', phone: '', address: '', city: '', state: '', tax_id: '', payment_terms: 'net30', status: 'active' }
+const emptySupplier = { code: '', business_name: '', contact_person: '', email: '', phone: '', address: '', city: '', state: '', tax_id: '', payment_terms: 'net30', status: 'active' }
 
 export default function Suppliers() {
   const { t } = useTranslation()
@@ -24,7 +24,7 @@ export default function Suppliers() {
     try {
       const { data } = await api.get('/suppliers')
       setSuppliers(data.results || data || [])
-    } catch { toast.error(t('suppliers.loadError')) }
+    } catch { toast.error(t('suppliers.loadFailed')) }
     finally { setLoading(false) }
   }
 
@@ -46,10 +46,10 @@ export default function Suppliers() {
   }
 
   const columns = [
-    { header: t('suppliers.name'), accessor: 'name', render: (r) => (
+    { header: t('suppliers.name'), accessor: 'business_name', render: (r) => (
       <div className="flex items-center gap-2">
         <Building2 size={16} className="text-gray-400" />
-        <div><p className="font-medium text-gray-900">{r.name}</p><p className="text-xs text-gray-500">{r.contact_person}</p></div>
+        <div><p className="font-medium text-gray-900">{r.business_name}</p><p className="text-xs text-gray-500">{r.contact_person}</p></div>
       </div>
     )},
     { header: t('suppliers.contact'), accessor: 'email', render: (r) => (
@@ -88,7 +88,9 @@ export default function Suppliers() {
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">{t('suppliers.name')} *</label>
-              <input className="input-field" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required /></div>
+              <input className="input-field" value={form.business_name} onChange={e => setForm(f => ({ ...f, business_name: e.target.value }))} required /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('suppliers.codeLabel')} *</label>
+              <input className="input-field" value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} required /></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('suppliers.contactPerson')}</label>
               <input className="input-field" value={form.contact_person} onChange={e => setForm(f => ({ ...f, contact_person: e.target.value }))} /></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">{t('suppliers.email')}</label>

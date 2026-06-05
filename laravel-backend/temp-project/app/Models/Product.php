@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'category_id', 'name', 'sku', 'barcode', 'description', 'unit',
+        'category_id', 'name', 'name_ar', 'sku', 'barcode', 'description', 'description_ar', 'unit',
         'cost_price', 'selling_price', 'weight', 'image',
         'is_expiry_tracked', 'shelf_life_days',
         'min_stock_level', 'max_stock_level', 'is_active',
@@ -46,5 +46,21 @@ class Product extends Model
     public function getAvailableStockAttribute()
     {
         return $this->batches()->sum('available_quantity');
+    }
+
+    public function getNameAttribute($value)
+    {
+        if (app()->getLocale() === 'ar' && $this->name_ar) {
+            return $this->name_ar;
+        }
+        return $value;
+    }
+
+    public function getDescriptionAttribute($value)
+    {
+        if (app()->getLocale() === 'ar' && $this->description_ar) {
+            return $this->description_ar;
+        }
+        return $value;
     }
 }

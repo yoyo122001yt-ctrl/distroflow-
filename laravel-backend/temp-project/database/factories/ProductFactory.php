@@ -17,6 +17,7 @@ class ProductFactory extends Factory
         return [
             'category_id' => $this->faker->randomElement($categories),
             'name' => $this->faker->unique()->words(3, true),
+            'name_ar' => $this->faker->boolean(50) ? $this->faker->words(3, true) : null,
             'sku' => 'SKU-' . strtoupper($this->faker->unique()->bothify('??###')),
             'barcode' => $this->faker->unique()->ean13(),
             'description' => $this->faker->sentence(),

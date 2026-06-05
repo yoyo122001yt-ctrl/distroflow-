@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, AlertTriangle, Package, History } from 'lucide-react'
+import { Plus, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import DataTable from '../components/Common/DataTable'
@@ -34,7 +34,7 @@ export default function WarehouseInventory() {
         unit: b.product?.unit || b.unit,
         location: b.location || b.warehouse?.name || '',
       })))
-    } catch { toast.error(t('inventory.loadError')) }
+    } catch { toast.error(t('inventory.loadFailed')) }
     finally { setLoading(false) }
   }
 
@@ -75,7 +75,7 @@ export default function WarehouseInventory() {
       const days = Math.ceil((new Date(r.expiry_date) - new Date()) / (1000 * 60 * 60 * 24))
       return (
         <span className={`${days <= 0 ? 'text-danger-500 font-medium' : days <= 30 ? 'text-warning-500' : ''}`}>
-          {formatDate(r.expiry_date)} {days <= 0 ? t('inventory.expired') : days <= 7 ? `(${days}d left)` : ''}
+          {formatDate(r.expiry_date)} {days <= 0 ? t('inventory.expired') : days <= 7 ? t('inventory.daysLeft', { days }) : ''}
         </span>
       )
     }},
@@ -124,7 +124,7 @@ export default function WarehouseInventory() {
               <select className="select-field" value={adjustment.type} onChange={e => setAdjustment(a => ({ ...a, type: e.target.value }))}>
                 <option value="add">{t('inventory.addStock')}</option>
                 <option value="remove">{t('inventory.removeStock')}</option>
-                <option value="damage">{t('inventory.damageWriteoff')}</option>
+                <option value="damage">{t('inventory.damageWriteOff')}</option>
               </select>
             </div>
             <div>

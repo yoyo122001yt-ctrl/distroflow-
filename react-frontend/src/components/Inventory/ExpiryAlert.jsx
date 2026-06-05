@@ -22,16 +22,16 @@ export default function ExpiryAlert({ batches, onViewBatch }) {
   }
 
   const alertConfig = {
-    expired: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', label: t('expiryAlert:expired') },
-    critical: { icon: AlertTriangle, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', label: t('expiryAlert:expiringSoon') },
-    warning: { icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', label: t('expiryAlert:expiring') },
+    expired: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', label: t('expiryAlert.expired') },
+    critical: { icon: AlertTriangle, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', label: t('expiryAlert.expiringSoon') },
+    warning: { icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', label: t('expiryAlert.expiring') },
   }
 
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
         <AlertTriangle size={16} className="text-orange-500" />
-        {t('expiryAlert:title', { count: expiring.length })}
+        {t('expiryAlert.title', { count: expiring.length })}
       </h3>
       {expiring.slice(0, 5).map(batch => {
         const type = getAlertType(batch.expiry_date)
@@ -50,13 +50,13 @@ export default function ExpiryAlert({ batches, onViewBatch }) {
               <div>
                 <p className="text-sm font-medium text-gray-900">{batch.product_name || batch.product}</p>
                 <p className="text-xs text-gray-500">
-                  {t('expiryAlert:batch')}: {batch.batch_code || batch.id} | {t('expiryAlert:quantity')}: {batch.quantity}
+                  {t('expiryAlert.batch', { code: batch.batch_code || batch.id, qty: batch.quantity })}
                 </p>
               </div>
             </div>
             <div className="text-right">
               <span className={`badge ${cfg.color.replace('text-', 'bg-').replace('600', '100')} ${cfg.color}`}>
-                {type === 'expired' ? t('expiryAlert:expired') : t('expiryAlert:daysLeft', { days })}
+                {type === 'expired' ? t('expiryAlert.expired') : t('expiryAlert.daysLeft', { days })}
               </span>
               <p className="text-xs text-gray-500 mt-1">{formatDate(batch.expiry_date)}</p>
             </div>
@@ -64,7 +64,7 @@ export default function ExpiryAlert({ batches, onViewBatch }) {
         )
       })}
       {expiring.length > 5 && (
-        <p className="text-xs text-gray-500 text-center">{t('expiryAlert:moreExpiring', { count: expiring.length - 5 })}</p>
+        <p className="text-xs text-gray-500 text-center">{t('expiryAlert.moreItems', { count: expiring.length - 5 })}</p>
       )}
     </div>
   )

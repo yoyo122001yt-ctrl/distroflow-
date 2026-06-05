@@ -34,8 +34,9 @@ export default function ActivityLog() {
 
   function formatDiff(oldValues, newValues) {
     if (!oldValues && !newValues) return null;
-    const old = oldValues ? (typeof oldValues === 'string' ? JSON.parse(oldValues) : oldValues) : {};
-    const updated = newValues ? (typeof newValues === 'string' ? JSON.parse(newValues) : newValues) : {};
+    let old = {}, updated = {};
+    try { old = oldValues ? (typeof oldValues === 'string' ? JSON.parse(oldValues) : oldValues) : {}; } catch { old = {}; }
+    try { updated = newValues ? (typeof newValues === 'string' ? JSON.parse(newValues) : newValues) : {}; } catch { updated = {}; }
     const allKeys = [...new Set([...Object.keys(old), ...Object.keys(updated)])];
     return (
       <div className="text-xs">

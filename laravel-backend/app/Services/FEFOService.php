@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 class FEFOService
 {
-    const int HIGH = 5;
+    const HIGH = 5;
 
     public function getPickingBatches(int $productId, float $quantityNeeded): Collection
     {

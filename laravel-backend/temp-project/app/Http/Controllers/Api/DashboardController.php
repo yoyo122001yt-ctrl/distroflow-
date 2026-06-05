@@ -15,8 +15,8 @@ class DashboardController extends Controller
     {
         try {
             $totalStores = RetailStore::count();
-            $totalProducts = Product::count();
-            $activeProducts = Product::where('is_active', true)->count();
+            $totalProducts = Product::where('is_active', true)->count();
+            $activeProducts = $totalProducts;
             $ordersToday = SalesOrder::whereDate('created_at', today())->count();
             $pendingOrders = SalesOrder::where('status', 'pending')->count();
             $monthlyRevenue = SalesOrder::where('status', 'delivered')

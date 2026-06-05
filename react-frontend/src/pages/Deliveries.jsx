@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Eye, Truck, MapPin, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import DataTable from '../components/Common/DataTable'
 import Modal from '../components/Common/Modal'
-import { formatDate, formatDateTime, formatCurrency, getStatusBadgeClass } from '../utils/formatters'
+import { formatDate, formatDateTime, getStatusBadgeClass } from '../utils/formatters'
 
 export default function Deliveries() {
   const { t } = useTranslation()
@@ -21,31 +21,19 @@ export default function Deliveries() {
     try {
       const { data } = await api.get('/deliveries')
       setDeliveries(data.results || data || [])
-    } catch { toast.error(t('deliveries:failedToLoad')) }
+    } catch { toast.error(t('deliveries.loadFailed')) }
     finally { setLoading(false) }
   }
 
   const filtered = statusFilter ? deliveries.filter(d => d.status === statusFilter) : deliveries
 
-  const handleStatusUpdate = async (deliveryId, status) => {
-    try {
-      await api.post(`/deliveries/${deliveryId}/complete`, { status })
-      toast.success(t('deliveries:deliveryStatusUpdate', { status }))
-      fetchDeliveries()
-      if (selectedDelivery?.id === deliveryId) {
-        const { data } = await api.get(`/deliveries/${deliveryId}`)
-        setSelectedDelivery(data)
-      }
-    } catch (err) { toast.error(err.message) }
-  }
-
   const columns = [
-    { header: t('deliveries:deliveryNumber'), accessor: 'id', render: (r) => <span className="font-medium">#DEL-{String(r.id).padStart(4, '0')}</span> },
-    { header: t('deliveries:order'), accessor: 'order_number', render: (r) => r.order_number ? `#${r.order_number}` : '-' },
-    { header: t('deliveries:store'), accessor: 'store_name' },
-    { header: t('deliveries:driver'), accessor: 'driver_name' },
-    { header: t('deliveries:status'), accessor: 'status', render: (r) => <span className={`badge ${getStatusBadgeClass(r.status)}`}>{r.status.replace('_', ' ')}</span> },
-    { header: t('deliveries:eta'), accessor: 'eta', render: (r) => r.eta ? formatDateTime(r.eta) : '-' },
+    { header: t('deliveries.deliveryNo'), accessor: 'delivery_number', render: (r) => <span className="font-medium">#{r.delivery_number || String(r.id).padStart(4, '0')}</span> },
+    { header: t('deliveries.order'), accessor: 'delivery_number', render: (r) => <span className="text-gray-500">{t('deliveries.orderColon')} {r.delivery_number}</span> },
+    { header: t('deliveries.store'), accessor: 'store_name', render: (r) => r.store_name || r.route_assignment?.route?.name || '-' },
+    { header: t('deliveries.driver'), accessor: 'driver_name', render: (r) => r.driver?.name || r.driver_name || '-' },
+    { header: t('deliveries.status'), accessor: 'status', render: (r) => <span className={`badge ${getStatusBadgeClass(r.status)}`}>{r.status.replace('_', ' ')}</span> },
+    { header: t('deliveries.date'), accessor: 'delivery_date', render: (r) => formatDate(r.delivery_date) },
     { header: '', accessor: 'actions', sortable: false, render: (r) => (
       <button onClick={() => { setSelectedDelivery(r); setDetailModalOpen(true) }} className="p-1.5 rounded-lg hover:bg-gray-100"><Eye size={14} /></button>
     )},
@@ -55,62 +43,66 @@ export default function Deliveries() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('deliveries:title')}</h1>
-          <p className="text-gray-500 mt-1">{t('deliveries:subtitle')}</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('deliveries.title')}</h1>
+          <p className="text-gray-500 mt-1">{t('deliveries.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
-          {['', 'in_transit', 'delivered', 'cancelled'].map(s => (
-            <button key={s} className={`px-3 py-1.5 rounded-lg text-sm ${statusFilter === s ? 'bg-brand-600 text-white' : 'bg-white border border-gray-300 hover:bg-gray-50'}`}
-              onClick={() => setStatusFilter(s)}>{s || t('deliveries:all')}</button>
+          {[['', t('deliveries.all')], ['in_transit', t('deliveries.inTransit')], ['delivered', t('deliveries.delivered')], ['cancelled', t('deliveries.cancelled')]].map(([val, label]) => (
+            <button key={val} className={`px-3 py-1.5 rounded-lg text-sm ${statusFilter === val ? 'bg-brand-600 text-white' : 'bg-white border border-gray-300 hover:bg-gray-50'}`}
+              onClick={() => setStatusFilter(val)}>{label}</button>
           ))}
         </div>
       </div>
       <div className="card">
-        <DataTable columns={columns} data={filtered} loading={loading} searchPlaceholder={t('deliveries:searchPlaceholder')} />
+        <DataTable columns={columns} data={filtered} loading={loading} searchPlaceholder={t('deliveries.search')} />
       </div>
 
-      <Modal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)} title={`Delivery #DEL-${String(selectedDelivery?.id || '').padStart(4, '0')}`} size="lg">
+      <Modal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)} title={`${t('deliveries.deliveryNo')} ${selectedDelivery?.delivery_number || String(selectedDelivery?.id || '').padStart(4, '0')}`} size="lg">
         {selectedDelivery && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-500">{t('deliveries:store')}:</span> <span className="font-medium">{selectedDelivery.store_name}</span></div>
-              <div><span className="text-gray-500">{t('deliveries:driver')}:</span> <span className="font-medium">{selectedDelivery.driver_name || t('deliveries:unassigned')}</span></div>
-              <div><span className="text-gray-500">{t('deliveries:status')}:</span> <span className={`badge ${getStatusBadgeClass(selectedDelivery.status)}`}>{selectedDelivery.status}</span></div>
-              <div><span className="text-gray-500">{t('deliveries:order')}:</span> #{selectedDelivery.order_number || '-'}</div>
-              {selectedDelivery.eta && <div><span className="text-gray-500">{t('deliveries:eta')}:</span> {formatDateTime(selectedDelivery.eta)}</div>}
-              {selectedDelivery.actual_arrival && <div><span className="text-gray-500">{t('deliveries:arrived')}:</span> {formatDateTime(selectedDelivery.actual_arrival)}</div>}
+              <div><span className="text-gray-500">{t('deliveries.storeColon')}</span> <span className="font-medium">{selectedDelivery.store_name || selectedDelivery.route_assignment?.route?.name || '-'}</span></div>
+              <div><span className="text-gray-500">{t('deliveries.driverColon')}</span> <span className="font-medium">{selectedDelivery.driver?.name || selectedDelivery.driver_name || t('deliveries.unassigned')}</span></div>
+              <div><span className="text-gray-500">{t('deliveries.statusColon')}</span> <span className={`badge ${getStatusBadgeClass(selectedDelivery.status)}`}>{selectedDelivery.status}</span></div>
+              <div><span className="text-gray-500">{t('deliveries.orderColon')}</span> {selectedDelivery.delivery_number || '-'}</div>
+              <div><span className="text-gray-500">{t('deliveries.dateColon')}</span> {formatDate(selectedDelivery.delivery_date)}</div>
+              {selectedDelivery.completed_at && <div><span className="text-gray-500">{t('deliveries.completedColon')}</span> {formatDateTime(selectedDelivery.completed_at)}</div>}
             </div>
 
-            <div className="flex items-center gap-2 pt-2 border-t">
-              {selectedDelivery.status === 'in_transit' && (
-                <>
-                  <button className="btn-primary" onClick={() => handleStatusUpdate(selectedDelivery.id, 'delivered')}>
-                    <CheckCircle size={16} /> {t('deliveries:markDelivered')}
-                  </button>
-                  <button className="btn-danger" onClick={() => handleStatusUpdate(selectedDelivery.id, 'cancelled')}>
-                    <XCircle size={16} /> {t('deliveries:cancel')}
-                  </button>
-                </>
-              )}
-              {selectedDelivery.status === 'pending' && (
-                <button className="btn-primary" onClick={() => handleStatusUpdate(selectedDelivery.id, 'in_transit')}>
-                  <Truck size={16} /> {t('deliveries:startDelivery')}
-                </button>
-              )}
-            </div>
-
-            {selectedDelivery.proof_of_delivery && (
+            {(selectedDelivery.items || []).length > 0 && (
               <div className="border-t pt-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('deliveries:proofOfDelivery')}</h4>
-                {selectedDelivery.proof_of_delivery.recipient_name && (
-                  <p className="text-sm">{t('deliveries:recipient')}: <span className="font-medium">{selectedDelivery.proof_of_delivery.recipient_name}</span></p>
-                )}
-                {selectedDelivery.proof_of_delivery.notes && (
-                  <p className="text-sm text-gray-600">{t('deliveries:notes')}: {selectedDelivery.proof_of_delivery.notes}</p>
-                )}
-                {selectedDelivery.proof_of_delivery.signature && (
-                  <img src={selectedDelivery.proof_of_delivery.signature} alt={t('deliveries:signature')} className="mt-2 max-h-20 border" />
-                )}
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('deliveries.items')}</h4>
+                <table className="min-w-full text-sm">
+                  <thead><tr className="bg-gray-50"><th className="px-3 py-2 text-left">{t('deliveries.product')}</th><th className="px-3 py-2 text-right">{t('deliveries.qtyLoaded')}</th><th className="px-3 py-2 text-right">{t('deliveries.qtyDelivered')}</th><th className="px-3 py-2 text-right">{t('deliveries.qtyReturned')}</th></tr></thead>
+                  <tbody className="divide-y">
+                    {(selectedDelivery.items || []).map((itm, i) => (
+                      <tr key={i}><td className="px-3 py-2">{itm.product?.name || '-'}</td>
+                        <td className="px-3 py-2 text-right">{itm.quantity_loaded}</td>
+                        <td className="px-3 py-2 text-right">{itm.quantity_delivered}</td>
+                        <td className="px-3 py-2 text-right">{itm.quantity_returned}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {(selectedDelivery.stops || []).length > 0 && (
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('deliveries.stops')}</h4>
+                <div className="space-y-2">
+                  {selectedDelivery.stops.map((stop, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
+                      <span className="font-medium">{stop.retail_store?.business_name || `Stop #${stop.stop_order}`}</span>
+                      <span className={`badge ${getStatusBadgeClass(stop.status)}`}>{stop.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedDelivery.notes && (
+              <div className="border-t pt-2">
+                <p className="text-sm"><span className="text-gray-500">{t('deliveries.notes')}</span> {selectedDelivery.notes}</p>
               </div>
             )}
           </div>

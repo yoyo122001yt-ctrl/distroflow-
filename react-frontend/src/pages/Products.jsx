@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, Pencil, Trash2, Package } from 'lucide-react'
+import { Plus, Pencil, Trash2, Languages } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import DataTable from '../components/Common/DataTable'
 import Modal from '../components/Common/Modal'
 import { formatCurrency } from '../utils/formatters'
 
-const emptyProduct = { name: '', sku: '', description: '', selling_price: '', cost_price: '', category_id: '', unit: 'piece', min_stock_level: 0, is_expiry_tracked: true, shelf_life_days: 0 }
+const emptyProduct = { name: '', name_ar: '', sku: '', description: '', description_ar: '', selling_price: '', cost_price: '', category_id: '', unit: 'piece', min_stock_level: 0, is_expiry_tracked: true, shelf_life_days: 0 }
 
 export default function Products() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -18,23 +18,30 @@ export default function Products() {
   const [form, setForm] = useState(emptyProduct)
   const [categoryFilter, setCategoryFilter] = useState('')
   const [categories, setCategories] = useState([])
-  const [categoryMap, setCategoryMap] = useState({})
+  const [categoryList, setCategoryList] = useState([])
   const [saving, setSaving] = useState(false)
+  const [showNewCategory, setShowNewCategory] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+  const [newCatNameAr, setNewCatNameAr] = useState('')
 
   useEffect(() => {
     fetchProducts()
+    fetchCategories()
   }, [])
+
+  const catDisplayName = (cat) => {
+    if (!cat) return '-'
+    const name = cat.name || cat
+    return i18n.language === 'ar' ? (cat.name_ar || name) : name
+  }
 
   const fetchProducts = async () => {
     try {
       const { data } = await api.get('/products')
       const results = data.results || data || []
       setProducts(results)
-      const cats = [...new Set(results.map(p => (p.category?.name || p.category)).filter(Boolean))]
+      const cats = [...new Set(results.map(p => catDisplayName(p.category)).filter(Boolean))]
       setCategories(cats)
-      const map = {}
-      results.forEach(p => { if (p.category?.id && p.category?.name) map[p.category.name] = p.category.id })
-      setCategoryMap(map)
     } catch (err) {
       toast.error(t('products.loadFailed'))
     } finally {
@@ -42,7 +49,15 @@ export default function Products() {
     }
   }
 
-  const filtered = categoryFilter ? products.filter(p => (p.category?.name || p.category) === categoryFilter) : products
+  const fetchCategories = async () => {
+    try {
+      const { data } = await api.get('/categories')
+      setCategoryList(data || [])
+    } catch (err) {
+    }
+  }
+
+  const filtered = categoryFilter ? products.filter(p => catDisplayName(p.category) === categoryFilter) : products
 
   const openCreate = () => {
     setEditing(null)
@@ -54,8 +69,10 @@ export default function Products() {
     setEditing(product)
     setForm({
       name: product.name || '',
+      name_ar: product.name_ar || '',
       sku: product.sku || '',
       description: product.description || '',
+      description_ar: product.description_ar || '',
       selling_price: product.selling_price || '',
       cost_price: product.cost_price || '',
       category_id: product.category_id || '',
@@ -71,17 +88,25 @@ export default function Products() {
     e.preventDefault()
     setSaving(true)
     try {
+      let categoryId = form.category_id || null
+      if (showNewCategory && newCatName.trim()) {
+        const { data: newCat } = await api.post('/categories', { name: newCatName, name_ar: newCatNameAr || null })
+        categoryId = newCat.id
+        await fetchCategories()
+      }
       const payload = {
         name: form.name,
+        name_ar: form.name_ar || null,
         sku: form.sku,
         description: form.description || '',
+        description_ar: form.description_ar || null,
         unit: form.unit,
         cost_price: parseFloat(form.cost_price) || 0,
         selling_price: parseFloat(form.selling_price) || 0,
         min_stock_level: parseInt(form.min_stock_level) || 0,
         is_expiry_tracked: form.is_expiry_tracked,
         shelf_life_days: parseInt(form.shelf_life_days) || 0,
-        category_id: form.category_id || null,
+        category_id: categoryId,
       }
       if (editing) {
         await api.put(`/products/${editing.id}`, payload)
@@ -91,6 +116,7 @@ export default function Products() {
         toast.success(t('products.created'))
       }
       setModalOpen(false)
+      setShowNewCategory(false)
       fetchProducts()
     } catch (err) {
       toast.error(err.message)
@@ -110,10 +136,11 @@ export default function Products() {
     }
   }
 
+  const isAr = i18n.language === 'ar'
   const columns = [
-    { header: t('products.name'), accessor: 'name' },
+    { header: t('products.name'), accessor: 'name', render: (r) => isAr ? (r.name_ar || r.name) : r.name },
     { header: t('products.sku'), accessor: 'sku' },
-    { header: t('products.category'), accessor: 'category', render: (r) => r.category?.name || r.category || '-' },
+    { header: t('products.category'), accessor: 'category', render: (r) => { const cat = r.category?.name || r.category || '-'; return isAr ? (r.category?.name_ar || cat) : cat } },
     { header: t('products.price'), accessor: 'selling_price', render: (r) => formatCurrency(r.selling_price) },
     { header: t('products.cost'), accessor: 'cost_price', render: (r) => formatCurrency(r.cost_price) },
     { header: t('products.unit'), accessor: 'unit' },
@@ -170,9 +197,13 @@ export default function Products() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? t('products.editProduct') : t('products.createProduct')} size="lg">
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('products.nameLabel')} *</label>
               <input className="input-field" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1"><Languages size={14} className="inline" /> {t('products.nameLabel')} (العربية)</label>
+              <input className="input-field" value={form.name_ar} onChange={e => setForm(f => ({ ...f, name_ar: e.target.value }))} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('products.skuLabel')} *</label>
@@ -180,12 +211,29 @@ export default function Products() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('products.categoryLabel')}</label>
-              <select className="select-field" value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: parseInt(e.target.value) || '' }))}>
+              <select className="select-field" value={form.category_id} onChange={e => {
+                const val = e.target.value
+                if (val === '__new__') {
+                  setShowNewCategory(true)
+                  setNewCatName('')
+                  setNewCatNameAr('')
+                } else {
+                  setShowNewCategory(false)
+                  setForm(f => ({ ...f, category_id: parseInt(val) || '' }))
+                }
+              }}>
                 <option value="">{t('products.selectCategory')}</option>
-                {Object.entries(categoryMap).map(([name, id]) => (
-                  <option key={id} value={id}>{name}</option>
+                {categoryList.map(cat => (
+                  <option key={cat.id} value={cat.id}>{catDisplayName(cat)}</option>
                 ))}
+                <option value="__new__">{t('products.addCategory')}</option>
               </select>
+              {showNewCategory && (
+                <div className="mt-2 p-2 border border-dashed border-gray-300 rounded-lg space-y-2">
+                  <input className="input-field text-sm" placeholder={t('products.categoryNamePlaceholder')} value={newCatName} onChange={e => setNewCatName(e.target.value)} />
+                  <input className="input-field text-sm" placeholder={t('products.categoryNameArPlaceholder')} value={newCatNameAr} onChange={e => setNewCatNameAr(e.target.value)} />
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('products.sellingPriceLabel')} *</label>
@@ -211,7 +259,11 @@ export default function Products() {
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('products.descriptionLabel')}</label>
-              <textarea className="input-field" rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+              <textarea className="input-field" rows={2} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1"><Languages size={14} className="inline" /> {t('products.descriptionLabel')} (العربية)</label>
+              <textarea className="input-field" rows={2} value={form.description_ar} onChange={e => setForm(f => ({ ...f, description_ar: e.target.value }))} />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4">

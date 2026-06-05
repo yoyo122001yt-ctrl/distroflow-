@@ -6,7 +6,7 @@ import { useAuth } from './contexts/AuthContext'
 import Sidebar from './components/Layout/Sidebar'
 import Header from './components/Layout/Header'
 
-import Login from './pages/Login'
+import FuturisticLogin from './app/components/FuturisticLogin'
 import Dashboard from './pages/Dashboard' // .tsx resolved by Vite
 import Products from './pages/Products'
 import WarehouseInventory from './pages/WarehouseInventory'
@@ -96,7 +96,7 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><FuturisticLogin /></PublicRoute>} />
       <Route path="/" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
       <Route path="/products" element={<ProtectedLayout><Products /></ProtectedLayout>} />
       <Route path="/inventory" element={<ProtectedLayout><WarehouseInventory /></ProtectedLayout>} />

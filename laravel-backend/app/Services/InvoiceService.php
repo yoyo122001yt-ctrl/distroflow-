@@ -29,7 +29,7 @@ class InvoiceService
                 'total' => $order->total,
                 'amount_paid' => 0,
                 'balance_due' => $order->total,
-                'status' => 'pending',
+                'status' => 'unpaid',
             ]);
 
             return $invoice;

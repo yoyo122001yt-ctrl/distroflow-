@@ -40,7 +40,7 @@ export default function StoreOrderDetail() {
         </div>
         <div className="border rounded-lg p-4">
           <p className="text-gray-500 text-sm">Date</p>
-          <p>{new Date(order.order_date).toLocaleDateString()}</p>
+          <p>{new Date(order.created_at || order.order_date).toLocaleDateString()}</p>
         </div>
         <div className="border rounded-lg p-4">
           <p className="text-gray-500 text-sm">Delivery Date</p>
@@ -62,8 +62,8 @@ export default function StoreOrderDetail() {
           <tbody>
             {order.items?.map((item, i) => (
               <tr key={i} className="border-t">
-                <td className="p-3">{item.product_name}</td>
-                <td className="p-3 text-center">{item.quantity}</td>
+                <td className="p-3">{item.product?.name || item.product_name}</td>
+                <td className="p-3 text-center">{item.quantity_ordered ?? item.quantity}</td>
                 <td className="p-3 text-right">{item.unit_price} EGP</td>
                 <td className="p-3 text-right">{item.subtotal} EGP</td>
               </tr>

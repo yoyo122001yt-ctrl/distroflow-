@@ -7,6 +7,15 @@ import { formatCurrency } from '../utils/formatters'
 import StatCard from '../app/components/dashboard/StatCard'
 import SalesTrendChart from '../app/components/dashboard/SalesTrendChart'
 import OrderStatusChart from '../app/components/dashboard/OrderStatusChart'
+import CinematicIntro from '../app/components/CinematicIntro'
+
+export default function Dashboard() {
+  const [showIntro, setShowIntro] = useState(true)
+  if (showIntro) {
+    return <CinematicIntro onComplete={() => setShowIntro(false)} />
+  }
+  return <DashboardContent />
+}
 
 interface DashboardStats {
   total_stores: number
@@ -46,6 +55,7 @@ const STATUS_COLORS: Record<string, string> = {
   in_transit: '#3B82F6',
   cancelled: '#EF4444',
   processing: '#8B5CF6',
+  approved: '#3B82F6',
 }
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
@@ -54,6 +64,7 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   in_transit: 'In Transit',
   cancelled: 'Cancelled',
   processing: 'Processing',
+  approved: 'Approved',
 }
 
 const containerVariants = {
@@ -73,7 +84,7 @@ const itemVariants = {
   },
 }
 
-export default function Dashboard() {
+function DashboardContent() {
   const { t } = useTranslation()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [salesData, setSalesData] = useState<SalesData[]>([])
@@ -234,7 +245,7 @@ export default function Dashboard() {
                 <thead>
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                      {t('dashboard.orderNumber')}
+                      {t('dashboard.orderNo')}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
                       {t('dashboard.store')}

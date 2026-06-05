@@ -309,6 +309,29 @@ class SalesOrderController extends Controller
         }
     }
 
+    public function statusBreakdown()
+    {
+        try {
+            $breakdown = SalesOrder::selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status');
+
+            $data = $breakdown->map(function ($count, $status) {
+                return ['status' => $status, 'count' => $count];
+            })->values();
+
+            return response()->json([
+                'data' => $data,
+                'message' => 'Status breakdown retrieved',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve status breakdown',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function cancel(Request $request, $id)
     {
         try {

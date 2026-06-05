@@ -61,7 +61,7 @@ export default function StoreAnalysis() {
               <tbody>
                 {report.stores?.map((store, i) => (
                   <tr key={i} className="border-t">
-                    <td className="p-3">{store.name}</td>
+                    <td className="p-3">{store.business_name || store.name}</td>
                     <td className="p-3 text-right">{store.orders}</td>
                     <td className="p-3 text-right">{Number(store.total).toFixed(2)} EGP</td>
                   </tr>

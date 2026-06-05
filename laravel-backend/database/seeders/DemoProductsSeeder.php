@@ -65,34 +65,34 @@ class DemoProductsSeeder extends Seeder
 
         foreach ($products as $p) {
             $product = Product::create([
-                'category_id' => $catMap[$p[3]],
+                'category_id' => $catMap[$p[2]],
                 'name' => $p[0],
                 'sku' => $p[1],
                 'barcode' => 'BAR-' . $p[1],
                 'unit' => 'case',
-                'cost_price' => $p[4],
-                'selling_price' => $p[5],
-                'is_expiry_tracked' => $p[6],
-                'shelf_life_days' => $p[7],
-                'min_stock_level' => $p[8],
-                'max_stock_level' => $p[8] * 3,
+                'cost_price' => $p[3],
+                'selling_price' => $p[4],
+                'is_expiry_tracked' => $p[5],
+                'shelf_life_days' => $p[6],
+                'min_stock_level' => $p[7],
+                'max_stock_level' => $p[7] * 3,
                 'is_active' => true,
             ]);
 
             // Create batches with varying expiry dates
             for ($i = 0; $i < 3; $i++) {
-                $expiryDate = now()->addDays($p[7] / 3 * ($i + 1));
+                $expiryDate = now()->addDays($p[6] / 3 * ($i + 1));
                 $qty = rand(50, 200);
 
                 Batch::create([
                     'product_id' => $product->id,
                     'warehouse_id' => $warehouse->id,
                     'batch_number' => "BATCH-{$p[1]}-" . str_pad(($i + 1), 3, '0', STR_PAD_LEFT),
-                    'manufacturing_date' => now()->subDays($p[7] - ($p[7] / 3 * ($i + 1))),
+                    'manufacturing_date' => now()->subDays($p[6] - ($p[6] / 3 * ($i + 1))),
                     'expiry_date' => $expiryDate,
                     'quantity' => $qty,
                     'available_quantity' => $qty,
-                    'cost_price' => $p[4],
+                    'cost_price' => $p[3],
                     'supplier_id' => rand(1, 4),
                     'received_date' => now()->subDays($i * 30),
                     'status' => $expiryDate->isPast() ? 'expired' : 'available',

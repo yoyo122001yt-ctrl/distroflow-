@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
             DemoProductsSeeder::class,
             DemoStoresSeeder::class,
             DemoRoutesSeeder::class,
+            DemoOrdersSeeder::class,
+            DemoFulfillmentSeeder::class,
+            DemoFinanceSeeder::class,
         ]);
     }
 }

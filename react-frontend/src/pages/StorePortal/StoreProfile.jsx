@@ -33,7 +33,17 @@ export default function StoreProfile() {
   async function save() {
     setSaving(true);
     try {
-      await api.put('/auth/profile', form);
+      const payload = {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        retail_store: {
+          address: form.address,
+          whatsapp_phone: form.whatsapp_phone,
+          sms_phone: form.sms_phone,
+        },
+      };
+      await api.put('/auth/profile', payload);
       alert('Profile updated successfully');
     } catch (err) {
       alert('Failed to update profile: ' + (err.response?.data?.message || err.message));

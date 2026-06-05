@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 class RouteOptimizationService
 {
-    const float EARTH_RADIUS_KM = 6371.0;
+    const EARTH_RADIUS_KM = 6371.0;
 
     public function optimize(int $routeId): Collection
     {

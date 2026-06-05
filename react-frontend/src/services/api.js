@@ -1,4 +1,4 @@
-import axios from 'axios'
+ import axios from 'axios'
 
 const api = axios.create({
   baseURL: '/api',
@@ -10,6 +10,8 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  const lang = localStorage.getItem('lang') || 'en'
+  config.headers['Accept-Language'] = lang
   return config
 })
 

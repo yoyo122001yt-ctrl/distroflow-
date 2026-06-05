@@ -29,6 +29,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation
 
                 Product::create([
                     'name' => $row['name'],
+                    'name_ar' => $row['name_ar'] ?? null,
                     'sku' => $row['sku'],
                     'category_id' => $category?->id,
                     'selling_price' => (float) ($row['selling_price'] ?? 0),
@@ -36,6 +37,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation
                     'stock_quantity' => (int) ($row['stock_quantity'] ?? 0),
                     'unit' => $row['unit'] ?? 'piece',
                     'description' => $row['description'] ?? null,
+                    'description_ar' => $row['description_ar'] ?? null,
                     'is_active' => in_array($row['is_active'] ?? '1', ['1', 'true', 'yes', 'active']),
                 ]);
 

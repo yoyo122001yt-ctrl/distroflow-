@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\WarehouseInventoryController;
+use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\RetailStoreController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\PurchaseOrderController;
@@ -43,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Warehouse Operations
+    Route::apiResource('warehouses', WarehouseController::class)->only(['index']);
     Route::prefix('warehouse')->group(function () {
         Route::post('/receive', [WarehouseInventoryController::class, 'receive']);
         Route::get('/inventory', [WarehouseInventoryController::class, 'inventory']);
@@ -59,6 +61,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Products
     Route::apiResource('products', ProductController::class);
     Route::get('products/{id}/batches', [ProductController::class, 'batches']);
+
+    // Categories
+    Route::get('categories', [App\Http\Controllers\Api\CategoryController::class, 'index']);
+    Route::post('categories', [App\Http\Controllers\Api\CategoryController::class, 'store']);
 
     // Retail Stores
     Route::apiResource('stores', RetailStoreController::class);

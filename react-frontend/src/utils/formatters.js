@@ -43,6 +43,8 @@ export function getStatusBadgeClass(status) {
     confirmed: 'bg-blue-100 text-blue-800',
     processing: 'bg-indigo-100 text-indigo-800',
     picking: 'bg-purple-100 text-purple-800',
+    open: 'bg-purple-100 text-purple-800',
+    in_progress: 'bg-blue-100 text-blue-800',
     loaded: 'bg-orange-100 text-orange-800',
     in_transit: 'bg-cyan-100 text-cyan-800',
     delivered: 'bg-green-100 text-green-800',
@@ -58,6 +60,7 @@ export function getStatusBadgeClass(status) {
     expired: 'bg-red-100 text-red-800',
     low_stock: 'bg-orange-100 text-orange-800',
     out_of_stock: 'bg-red-100 text-red-800',
+    assigned: 'bg-indigo-100 text-indigo-800',
   }
   return map[status] || 'bg-gray-100 text-gray-800'
 }

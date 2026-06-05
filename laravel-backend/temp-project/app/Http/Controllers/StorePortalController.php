@@ -46,6 +46,7 @@ class StorePortalController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('name_ar', 'like', "%{$search}%")
                   ->orWhere('sku', 'like', "%{$search}%");
             });
         }

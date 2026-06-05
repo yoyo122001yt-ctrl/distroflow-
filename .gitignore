@@ -13,6 +13,8 @@ node_modules/
 npm-debug.log
 
 # PHP / Laravel
+laravel-backend/.env
+laravel-backend/.env.*.local
 laravel-backend/temp-project/.env
 laravel-backend/temp-project/.env.*.local
 laravel-backend/temp-project/storage/framework/cache/data/
@@ -26,6 +28,9 @@ laravel-backend/temp-project/bootstrap/cache/*.php
 # Build output
 react-frontend/dist/
 driver-pwa/dist/
+
+# SQLite database
+laravel-backend/database/database.sqlite
 
 # Railway
 .railway/

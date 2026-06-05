@@ -163,14 +163,14 @@ class RetailStoreController extends Controller
 
             $store->orders()->whereIn('status', ['pending', 'approved'])->update(['status' => 'cancelled']);
 
-            $store->update(['status' => 'inactive']);
+            $store->delete();
 
             return response()->json([
-                'message' => 'Store deactivated',
+                'message' => 'Store deleted',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to deactivate store',
+                'message' => 'Failed to delete store',
                 'error' => $e->getMessage(),
             ], 500);
         }

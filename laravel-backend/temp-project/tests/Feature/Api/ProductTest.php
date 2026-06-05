@@ -248,7 +248,7 @@ class ProductTest extends TestCase
         ]);
     }
 
-    public function test_destroy_rejects_product_with_existing_stock(): void
+    public function test_destroy_deactivates_product_even_with_stock(): void
     {
         $warehouse = new Warehouse;
         $warehouse->name = 'Test Warehouse';
@@ -273,8 +273,8 @@ class ProductTest extends TestCase
         $response = $this->actingAs($this->adminUser)
             ->deleteJson("/api/products/{$product->id}");
 
-        $response->assertStatus(409)
-            ->assertJsonFragment(['message' => 'Cannot delete product with existing stock']);
+        $response->assertStatus(200)
+            ->assertJsonFragment(['message' => 'Product deactivated']);
     }
 
     public function test_batches_returns_product_batches(): void

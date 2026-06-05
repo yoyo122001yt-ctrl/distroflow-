@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FileText, Eye, Download, CheckCircle, Search } from 'lucide-react'
+import { Eye, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import DataTable from '../components/Common/DataTable'
